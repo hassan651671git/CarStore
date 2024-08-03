@@ -8,6 +8,8 @@ using auctionservices.Data;
 using auctionservices.Entities;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using Contracts;
+using MassTransit;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,11 +21,13 @@ namespace auctionservices.Controllers
     {
         private readonly AuctionDbContext _auctionDbContext;
         private readonly IMapper _mapper;
+        private readonly IPublishEndpoint _publishEndpoint;
 
-        public AuctionController(AuctionDbContext auctionDbContext, IMapper mapper)
+        public AuctionController(AuctionDbContext auctionDbContext, IMapper mapper,IPublishEndpoint publishEndpoint)
         {
             _auctionDbContext = auctionDbContext;
             _mapper = mapper;
+            _publishEndpoint = publishEndpoint;
         }
 
         [HttpGet]
@@ -59,16 +63,19 @@ namespace auctionservices.Controllers
         public async Task<ActionResult<AuctionDto>> CreateAuction(CreateAuctionDto createAuctionDto)
         {
             var auction = _mapper.Map<Auction>(createAuctionDto);
-            auction.Seller = "test seller";
+           // auction.Seller = "test seller";
             await _auctionDbContext.Auctions.AddAsync(auction);
-            var result = await _auctionDbContext.SaveChangesAsync();
+
+           var auctionDto=_mapper.Map<AuctionDto>(auction);
+           await _publishEndpoint.Publish(_mapper.Map<AuctionCreated>(auctionDto));
+           var result = await _auctionDbContext.SaveChangesAsync();
 
             if (result == 0)
             {
                 return BadRequest("Couldn't save to database!");
             }
 
-            return CreatedAtAction(nameof(this.GetAuctionById), new { auction.Id }, _mapper.Map<AuctionDto>(auction));
+            return CreatedAtAction(nameof(this.GetAuctionById), new { auction.Id }, auctionDto);
 
 
         }
@@ -87,6 +94,8 @@ namespace auctionservices.Controllers
             auction.Item.Color = updateAuctionDto.Color ?? auction.Item.Color;
             auction.Item.Mileage = updateAuctionDto.Mileage ?? auction.Item.Mileage;
             auction.Item.Year = updateAuctionDto.Year ?? auction.Item.Year;
+
+            await _publishEndpoint.Publish(_mapper.Map<AuctionUpdated>(auction));
 
             var result = await _auctionDbContext.SaveChangesAsync();
 
@@ -111,7 +120,9 @@ namespace auctionservices.Controllers
             }
 
             _auctionDbContext.Auctions.Remove(auction);
+            await _publishEndpoint.Publish<AuctionDeleted>(new { Id = auction.Id.ToString() });
             var result = await _auctionDbContext.SaveChangesAsync();
+            
             if (result > 0) return Ok();
             return BadRequest("Can't delete");
 

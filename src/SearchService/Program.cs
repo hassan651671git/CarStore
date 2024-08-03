@@ -1,9 +1,11 @@
 
 using System.Net;
+using MassTransit;
 using MongoDB.Driver;
 using MongoDB.Entities;
 using Polly;
 using Polly.Extensions.Http;
+using SearchService.Consumers;
 using SearchService.Data;
 using SearchService.Models;
 using SearchService.Services;
@@ -14,6 +16,29 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddControllers();
 builder.Services.AddHttpClient<AuctionSvcHttpClient>().AddPolicyHandler(GetPolicy());
+
+builder.Services.AddMassTransit(config =>
+{
+
+    config.AddConsumersFromNamespaceContaining<AuctionCreatedeConsumer>();
+    config.SetEndpointNameFormatter(new KebabCaseEndpointNameFormatter("search", false));
+
+    config.UsingRabbitMq((context, cfg) =>
+    {
+        cfg.ReceiveEndpoint("search-auction-created",
+        e =>
+        {
+            e.UseMessageRetry(r => r.Interval(5, 5));
+            e.ConfigureConsumer<AuctionCreatedeConsumer>(context);
+        });
+        
+        cfg.ConfigureEndpoints(context);
+    });
+
+});
+
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -28,15 +53,15 @@ app.UseHttpsRedirection();
 app.MapControllers();
 
 
-
+app.Lifetime.ApplicationStarted.Register(async () => await DbInitializer.Initialize(app));
 app.Run();
 
-app.Lifetime.ApplicationStarted.Register(async ()=> await DbInitializer.Initialize(app));
 
 
 
 
-static IAsyncPolicy<HttpResponseMessage> GetPolicy()=>
+
+static IAsyncPolicy<HttpResponseMessage> GetPolicy() =>
           HttpPolicyExtensions.HandleTransientHttpError()
-                  .OrResult(o=>o.StatusCode==HttpStatusCode.NotFound)
-                  .WaitAndRetryForeverAsync(_=>TimeSpan.FromSeconds(3));
+                  .OrResult(o => o.StatusCode == HttpStatusCode.NotFound)
+                  .WaitAndRetryForeverAsync(_ => TimeSpan.FromSeconds(3));

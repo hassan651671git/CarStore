@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using auctionservices.Entities;
+using Contracts;
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
 namespace auctionservices.Data
 {
@@ -18,6 +20,10 @@ namespace auctionservices.Data
             .HasOne(auction=>auction.Item)
             .WithOne(item=>item.Auction)
             .HasForeignKey<Item>(item=>item.AuctionId);
+
+            builder.AddInboxStateEntity();
+            builder.AddOutboxMessageEntity();
+            builder.AddOutboxStateEntity();
         }
 
         public DbSet<Auction> Auctions {get;set;}
