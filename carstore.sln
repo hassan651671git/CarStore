@@ -7,13 +7,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{6C16E0C4-375
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "auctionservices", "src\auctionservices\auctionservices.csproj", "{79D030B2-664A-455F-82C1-C33F939F051E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SearchService", "src\searchservice\SearchService.csproj", "{43D19712-655D-4B53-848C-E490AF6BA58D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SearchService", "src\SearchService\SearchService.csproj", "{43D19712-655D-4B53-848C-E490AF6BA58D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "contracts", "src\contracts\contracts.csproj", "{B560CA87-4E72-43CC-8A32-D7D32EE3D6BE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IdentityService", "src\identityservice\IdentityService.csproj", "{2888D3EF-E6CD-4AEF-8323-F49F75121C98}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IdentityService", "src\IdentityService\IdentityService.csproj", "{2888D3EF-E6CD-4AEF-8323-F49F75121C98}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GatewayService", "src\gatewayservice\GatewayService.csproj", "{D7558FF8-A7D8-4E87-82F6-F1A0AE9BA9DD}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GatewayService", "src\GatewayService\GatewayService.csproj", "{D7558FF8-A7D8-4E87-82F6-F1A0AE9BA9DD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

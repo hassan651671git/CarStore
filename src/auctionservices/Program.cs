@@ -14,21 +14,28 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddDbContext<AuctionDbContext>(
-    opt=>opt.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
+    opt => opt.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
     );
-    
+
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddMassTransit(config=>{
-    config.AddEntityFrameworkOutbox<AuctionDbContext>(o=>
+builder.Services.AddMassTransit(config =>
+{
+    config.AddEntityFrameworkOutbox<AuctionDbContext>(o =>
     {
-        o.QueryDelay=TimeSpan.FromSeconds(10);
+        o.QueryDelay = TimeSpan.FromSeconds(10);
         o.UsePostgres();
         o.UseBusOutbox();
-     });
+    });
 
-     config.AddConsumersFromNamespaceContaining<AuctionCreatedFaultConsumer>();
-     config.SetEndpointNameFormatter(new KebabCaseEndpointNameFormatter("auction",false));
-     config.UsingRabbitMq((context,cfg)=>{
+    config.AddConsumersFromNamespaceContaining<AuctionCreatedFaultConsumer>();
+    config.SetEndpointNameFormatter(new KebabCaseEndpointNameFormatter("auction", false));
+    config.UsingRabbitMq((context, cfg) =>
+    {
+        cfg.Host(builder.Configuration["RabbitMq:Host"], "/", host =>
+    {
+        host.Username(builder.Configuration.GetValue("RabbitMq:Username", "guest"));
+        host.Password(builder.Configuration.GetValue("RabbitMq:Password", "guest"));
+    });
         cfg.ConfigureEndpoints(context);
     });
 
