@@ -32,9 +32,9 @@ internal static class HostingExtensions
                 // see https://docs.duendesoftware.com/identityserver/v6/fundamentals/resources/
                 options.EmitStaticAudienceClaim = true;
 
-                if(builder.Environment.IsEnvironment("Docker"))
+                if (builder.Environment.IsEnvironment("Docker"))
                 {
-                    options.IssuerUri="http://localhost:5001";
+                    options.IssuerUri = "http://localhost:5000";
                 }
             })
             .AddInMemoryIdentityResources(Config.IdentityResources)
@@ -42,7 +42,7 @@ internal static class HostingExtensions
             .AddInMemoryClients(Config.Clients)
             .AddAspNetIdentity<ApplicationUser>()
             .AddProfileService<CustomProfileService>();
-        
+
         builder.Services.AddAuthentication()
             .AddGoogle(options =>
             {
@@ -55,16 +55,16 @@ internal static class HostingExtensions
                 options.ClientSecret = "copy client secret from Google here";
             });
 
-            
-        builder.Services.ConfigureApplicationCookie(o=>o.Cookie.SameSite=SameSiteMode.Lax);
+
+        builder.Services.ConfigureApplicationCookie(o => o.Cookie.SameSite = SameSiteMode.Lax);
 
         return builder.Build();
     }
-    
+
     public static WebApplication ConfigurePipeline(this WebApplication app)
-    { 
+    {
         app.UseSerilogRequestLogging();
-    
+
         if (app.Environment.IsDevelopment())
         {
             app.UseDeveloperExceptionPage();
@@ -74,7 +74,7 @@ internal static class HostingExtensions
         app.UseRouting();
         app.UseIdentityServer();
         app.UseAuthorization();
-        
+
         app.MapRazorPages()
             .RequireAuthorization();
 

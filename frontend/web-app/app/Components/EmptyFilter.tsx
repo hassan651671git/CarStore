@@ -4,6 +4,7 @@ import { useParamsStore } from '@/hooks/useParamsStore'
 import React from 'react'
 import Heading from './Heading'
 import { Button } from 'flowbite-react'
+import { signIn } from '@/auth'
 // import { signIn } from 'next-auth/react'
 
 type Props = {
@@ -31,8 +32,7 @@ export default function EmptyFilter({
                     <Button outline onClick={reset}>Remove Filters</Button>
                 )}
                 {showLogin && (
-                    <div>please remove this line</div>
-                    // <Button outline onClick={() => signIn('id-server', { callbackUrl })}>Login</Button>
+                    <Button outline onClick={() => signIn('id-server', { callbackUrl })}>Login</Button>
                 )}
             </div>
         </div>
