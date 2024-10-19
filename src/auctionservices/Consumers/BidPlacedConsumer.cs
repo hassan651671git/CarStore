@@ -2,11 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using auctionservices.Data;
+using AuctionServices.Data;
 using Contracts;
 using MassTransit;
-
-namespace auctionservices.Consumers
+namespace AuctionServices.Consummers
 {
     public class BidPlacedConsumer : IConsumer<BidPlaced>
     {

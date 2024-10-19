@@ -10,7 +10,7 @@ COPY src/contracts/contracts.csproj src/contracts/contracts.csproj
 COPY src/GatewayService/GatewayService.csproj src/GatewayService/GatewayService.csproj
 COPY src/IdentityService/IdentityService.csproj src/IdentityService/IdentityService.csproj
 COPY src/SearchService/SearchService.csproj src/SearchService/SearchService.csproj
-
+COPY src/Biddingservice-controllers/Biddingservice-controllers.csproj src/Biddingservice-controllers/Biddingservice-controllers.csproj
 #restore package dependencies
 RUN dotnet restore carstore.sln
 

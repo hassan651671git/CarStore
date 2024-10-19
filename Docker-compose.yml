@@ -22,70 +22,93 @@ services:
     image: rabbitmq:3-management-alpine
     container_name: rabbitmq
     ports:
-      - "5672:5672"        # AMQP port
-      - "15672:15672"      # Management UI port
+      - "5672:5672" # AMQP port
+      - "15672:15672" # Management UI port
 
   auction-svc:
     image: trycatchlearn/auction-svc:latest
-    build: 
-     context: .
-     dockerfile: src/auctionservices/Dockerfile
+    build:
+      context: .
+      dockerfile: src/auctionservices/Dockerfile
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
+      - ASPNETCORE_URLS=http://+:7777
       - RabbitMq__Host=rabbitmq
       - ConnectionStrings__DefaultConnection=server=postgres:5432;User Id=postgres;password=postgrespw;Database=Auctions
       - IdentityServiceUrl=http://identity-svc
+      - Kestrel__Endpoints__Grpc__Protocols=Http2
+      - Kestrel__Endpoints__Grpc__Url=http://+:7777
+      - Kestrel__Endpoints__WebApi__Protocols=Http1
+      - Kestrel__Endpoints__WebApi__Url=Http://+:80
     ports:
       - 7001:80
+      - 7777:7777
     depends_on:
       - postgres
       - rabbitmq
 
   search-svc:
-      image: trycatchlearn/search-svc:latest
-      build: 
-       context: .
-       dockerfile: src/SearchService/Dockerfile
-      environment:
-        - ASPNETCORE_ENVIRONMENT=Development
-        - ASPNETCORE_URLS=http://+:80
-        - RabbitMq__Host=rabbitmq
-        - ConnectionStrings__mongoDbConnection=mongodb://root:mongopw@mongodb
-        - AuctionServiceURL=http://auction-svc
-      ports:
-        - 7002:80
-      depends_on:
-        - mongodb
-        - rabbitmq
-
+    image: trycatchlearn/search-svc:latest
+    build:
+      context: .
+      dockerfile: src/SearchService/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+      - RabbitMq__Host=rabbitmq
+      - ConnectionStrings__mongoDbConnection=mongodb://root:mongopw@mongodb
+      - AuctionServiceURL=http://auction-svc
+    ports:
+      - 7002:80
+    depends_on:
+      - mongodb
+      - rabbitmq
 
   identity-svc:
-      image: trycatchlearn/identity-svc:latest
-      build: 
-       context: .
-       dockerfile: src/IdentityService/Dockerfile
-      environment:
-        - ASPNETCORE_ENVIRONMENT=Docker
-        - ASPNETCORE_URLS=http://+:80
-        - ConnectionStrings__DefaultConnection=server=postgres:5432;User Id=postgres;password=postgrespw;Database=Identity
-      ports:
-        - 5000:80
-      depends_on:
-        - postgres
+    image: trycatchlearn/identity-svc:latest
+    build:
+      context: .
+      dockerfile: src/IdentityService/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Docker
+      - ASPNETCORE_URLS=http://+:80
+      - ConnectionStrings__DefaultConnection=server=postgres:5432;User Id=postgres;password=postgrespw;Database=Identity
+    ports:
+      - 5000:80
+    depends_on:
+      - postgres
 
   gateway-svc:
-      image: trycatchlearn/gateway-svc:latest
-      build: 
-       context: .
-       dockerfile: src/GatewayService/Dockerfile
-      environment:
-        - ASPNETCORE_ENVIRONMENT=Docker
-        - ASPNETCORE_URLS=http://+:80
-        - ConnectionStrings__DefaultConnection=server=postgres:5432;User Id=postgres;password=postgrespw;Database=Identity
-      ports:
-        - 6001:80       
+    image: trycatchlearn/gateway-svc:latest
+    build:
+      context: .
+      dockerfile: src/GatewayService/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Docker
+      - ASPNETCORE_URLS=http://+:80
+      - ConnectionStrings__DefaultConnection=server=postgres:5432;User Id=postgres;password=postgrespw;Database=Identity
+    ports:
+      - 6001:80
+
+  bid-svc:
+    image: trycatchlearn/bid-svc:latest
+    build:
+      context: .
+      dockerfile: src/Biddingservice-controllers/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:80
+      - RabbitMq__Host=rabbitmq
+      - ConnectionStrings__BidDbConnection=mongodb://root:mongopw@mongodb
+      - IdentityServiceUrl=http://identity-svc
+      - GrpcAuction=http://auction-svc:7777
+    ports:
+      - 7003:80
+    depends_on:
+      - mongodb
+      - rabbitmq
 
 volumes:
- mongodata:
- pgdata:
+  mongodata:
+  pgdata:

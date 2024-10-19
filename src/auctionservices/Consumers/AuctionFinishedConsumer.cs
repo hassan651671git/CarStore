@@ -1,13 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using auctionservices.Data;
+using AuctionServices.Data;
 using Contracts;
 using MassTransit;
-using Microsoft.EntityFrameworkCore;
-
-namespace auctionservices.Consumers
+using AuctionServices.Entities;
+namespace AuctionServices.Consummers
 {
     public class AuctionFinishedConsumer : IConsumer<AuctionFinished>
     {
@@ -20,16 +15,16 @@ namespace auctionservices.Consumers
 
         public async Task Consume(ConsumeContext<AuctionFinished> context)
         {
-            var auction=await _auctionDbContext.Auctions.FindAsync(context.Message.AuctionId);
+            var auction = await _auctionDbContext.Auctions.FindAsync(context.Message.AuctionId);
 
-            if(context.Message.ItemSold)
+            if (context.Message.ItemSold)
             {
-                auction.Winner=context.Message.Winner;
-                auction.ReservePrice=context.Message.Amount??-1;
+                auction.Winner = context.Message.Winner;
+                auction.ReservePrice = context.Message.Amount ?? -1;
             }
 
-            auction.Status=auction.SoldAmount>auction.ReservePrice
-            ?Entities.Status.Finished:Entities.Status.ReserveNotMet;
+            auction.Status = auction.SoldAmount > auction.ReservePrice
+            ? Entities.Status.Finished : Entities.Status.ReserveNotMet;
             await _auctionDbContext.SaveChangesAsync();
         }
     }

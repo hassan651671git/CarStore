@@ -1,8 +1,7 @@
-using auctionservices.Data;
-using auctionservices.Entities;
+using AuctionServices.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace AuctionService.Data;
+namespace AuctionServices.Data;
 
 public class DbInitializer
 {

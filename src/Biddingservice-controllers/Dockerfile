@@ -15,15 +15,16 @@ COPY src/Biddingservice-controllers/Biddingservice-controllers.csproj src/Biddin
 RUN dotnet restore carstore.sln
 
 #copy the app folders over
-COPY src/GatewayService src/GatewayService
-WORKDIR /app/src/GatewayService
+COPY src/Biddingservice-controllers src/Biddingservice-controllers
+COPY src/contracts src/contracts
+WORKDIR /app/src/Biddingservice-controllers
 RUN dotnet publish -c release -o /app/src/out
 
 #build the run time image
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 
 WORKDIR /app
 COPY --from=build /app/src/out .
-ENTRYPOINT ["dotnet","GatewayService.dll"]
+ENTRYPOINT ["dotnet","Biddingservice-controllers.dll"]
 
 
 

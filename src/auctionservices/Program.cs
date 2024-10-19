@@ -1,11 +1,12 @@
 using AuctionService;
-using AuctionService.Data;
-using AuctionService.RequestHelpers;
-using auctionservices.Data;
+using AuctionServices.Data;
+using AuctionServices.RequestHelpers;
+using AuctionServices.Consummers;
 using Contracts;
 using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using auctionservices;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -50,6 +51,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         options.TokenValidationParameters.NameClaimType = "username";
     });
 
+builder.Services.AddGrpc();
+
 var app = builder.Build();
 DbInitializer.InitDb(app);
 // Configure the HTTP request pipeline.
@@ -64,5 +67,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.MapGrpcService<GrpcAuctionService>();
 
 app.Run();

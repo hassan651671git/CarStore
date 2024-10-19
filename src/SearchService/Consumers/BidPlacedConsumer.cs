@@ -3,21 +3,23 @@ using MassTransit;
 using MongoDB.Entities;
 using SearchService.Models;
 
-namespace SearchService;
-
-public class BidPlacedConsumer : IConsumer<BidPlaced>
+namespace SearchService.Consumers
 {
-    public async Task Consume(ConsumeContext<BidPlaced> context)
+
+    public class BidPlacedConsumer : IConsumer<BidPlaced>
     {
-        Console.WriteLine("--> Consuming bid placed");
-
-        var auction = await DB.Find<Item>().OneAsync(context.Message.AuctionId);
-
-        if (context.Message.BidStatus.Contains("Accepted") 
-            && context.Message.Amount > auction.CurrentHighBid)
+        public async Task Consume(ConsumeContext<BidPlaced> context)
         {
-            auction.CurrentHighBid = context.Message.Amount;
-            await auction.SaveAsync();
+            Console.WriteLine("--> Consuming bid placed");
+
+            var auction = await DB.Find<Item>().OneAsync(context.Message.AuctionId);
+
+            if (context.Message.BidStatus.Contains("Accepted")
+                && context.Message.Amount > auction.CurrentHighBid)
+            {
+                auction.CurrentHighBid = context.Message.Amount;
+                await auction.SaveAsync();
+            }
         }
     }
 }
