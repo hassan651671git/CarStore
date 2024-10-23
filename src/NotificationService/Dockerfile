@@ -13,20 +13,19 @@ COPY src/SearchService/SearchService.csproj src/SearchService/SearchService.cspr
 COPY src/Biddingservice-controllers/Biddingservice-controllers.csproj src/Biddingservice-controllers/Biddingservice-controllers.csproj
 COPY src/NotificationService/NotificationService.csproj src/NotificationService/NotificationService.csproj
 #restore package dependencies
-
 RUN dotnet restore carstore.sln
 
 #copy the app folders over
-COPY src/Biddingservice-controllers src/Biddingservice-controllers
+COPY src/NotificationService src/NotificationService
 COPY src/contracts src/contracts
-WORKDIR /app/src/Biddingservice-controllers
+WORKDIR /app/src/NotificationService
 RUN dotnet publish -c release -o /app/src/out
 
 #build the run time image
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 
 WORKDIR /app
 COPY --from=build /app/src/out .
-ENTRYPOINT ["dotnet","Biddingservice-controllers.dll"]
+ENTRYPOINT ["dotnet","NotificationService.dll"]
 
 
 

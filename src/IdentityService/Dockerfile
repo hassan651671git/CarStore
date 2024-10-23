@@ -11,7 +11,9 @@ COPY src/GatewayService/GatewayService.csproj src/GatewayService/GatewayService.
 COPY src/IdentityService/IdentityService.csproj src/IdentityService/IdentityService.csproj
 COPY src/SearchService/SearchService.csproj src/SearchService/SearchService.csproj
 COPY src/Biddingservice-controllers/Biddingservice-controllers.csproj src/Biddingservice-controllers/Biddingservice-controllers.csproj
+COPY src/NotificationService/NotificationService.csproj src/NotificationService/NotificationService.csproj
 #restore package dependencies
+
 RUN dotnet restore carstore.sln
 
 #copy the app folders over
